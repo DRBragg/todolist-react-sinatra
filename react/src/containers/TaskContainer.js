@@ -14,14 +14,10 @@ class TaskContainer extends React.Component {
     this.handleTaskChange = this.handleTaskChange.bind(this);
   }
 
-  getTasks() {
-    fetch('/api/v1/tasks')
-      .then(response => response.json())
-      .then(body => {
-        this.setState({
-          tasks: body.tasks
-        });
-      })
+  async getTasks() {
+    let responseJSON = await (await fetch('/api/v1/tasks')).json();
+
+    this.setState({ tasks: responseJSON.tasks })
   }
 
   componentDidMount() {
@@ -32,11 +28,14 @@ class TaskContainer extends React.Component {
     this.setState({ newTask: event.target.value })
   }
 
-  handleFormSubmit(event) {
+  async handleFormSubmit(event) {
     event.preventDefault();
-    fetch('/api/v1/tasks', { method: 'POST', credentials: 'same-origin', body: this.state.newTask})
-      .then(response => this.getTasks())
-      .then(response => this.handleClearForm())
+    let jsonTask = await (await fetch('/api/v1/tasks', { method: 'POST', credentials: 'same-origin', body: this.state.newTask})).json();
+
+    this.setState({
+      tasks: this.state.tasks.concat([jsonTask])},
+      this.handleClearForm()
+    );
   }
 
   handleClearForm(event) {
